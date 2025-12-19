@@ -1,5 +1,9 @@
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.IntFunction;
 
 public class Parser {
   private static Parser instance = null;
@@ -36,6 +40,9 @@ public class Parser {
     msg.setAdditionalRecordNum(combine(buffer[10], buffer[11]));
 
     int idx = 12;
+    List<String[]> allDomainsInQuestions = new ArrayList<>();
+    short[] quesTypes = new short[msg.getQuestionNum()];
+    short[] quesClasses = new short[msg.getQuestionNum()];
     for (int i = 0; i < msg.getQuestionNum(); i++, idx++) {
       List<String> domains = new ArrayList<>();
       StringBuilder cur = new StringBuilder();
@@ -56,8 +63,18 @@ public class Parser {
         domains.add(String.valueOf(cur));
         cur = new StringBuilder();
       }
-      System.out.println(domains);
+      quesTypes[i] = combine(buffer[++idx], buffer[++idx]);
+      quesClasses[i] = combine(buffer[++idx], buffer[++idx]);
+
+      allDomainsInQuestions.add(domains.toArray(value -> new String[value]));
     }
+
+    msg.setDomainName(allDomainsInQuestions);
+    msg.setRecordType(quesTypes);
+    msg.setClassType(quesClasses);
+
+    msg.buildHeader();
+    msg.buildQuestion();
 
     return msg;
   }
