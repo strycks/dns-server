@@ -20,11 +20,8 @@ public class Message {
   private List<String[]> domainName; // Domain name, multiple questions = multiple domains
   private short[] recordType; // The type of record
   private short[] classType; // Usually set to 1 (internet)
-  private int questionSize; // in byte
 
-  private byte[] packet = new byte[512];
-
-  public void buildHeader() {
+  public byte[] buildHeader() {
     byte[] msg = new byte[12];
     msg[0] = (byte) (identifier >> 8); // 8 high bit
     msg[1] = (byte) (identifier); // 8 low bit
@@ -44,11 +41,10 @@ public class Message {
     msg[9] = (byte) (authRecordNum);
     msg[10] = (byte) (additionalRecordNum >> 8);
     msg[11] = (byte) (additionalRecordNum);
-
-    System.arraycopy(msg, 0, packet, 0, 12);
+    return msg;
   }
 
-  public void buildQuestion() {
+  public byte[] buildQuestion() {
     List<Byte> allQuestions = new ArrayList<>();
     for (int quesCnt = 0; quesCnt < questionNum; quesCnt++) {
       for (int i = 0; i < domainName.get(quesCnt).length; i++) {
@@ -69,21 +65,7 @@ public class Message {
     for (int i = 0; i < allQuestions.size(); i++) {
       bytes[i] = allQuestions.get(i);
     }
-    questionSize = bytes.length;
-
-    System.arraycopy(bytes, 0, packet, 12, bytes.length);
-  }
-
-  public byte[] getPacket() {
-    return packet;
-  }
-
-  public int getQuestionSize() {
-    return questionSize;
-  }
-
-  public void setQuestionSize(int questionSize) {
-    this.questionSize = questionSize;
+    return bytes;
   }
 
   public short getIdentifier() {
