@@ -12,7 +12,16 @@ public class Main {
         System.out.println("Received data");
 
         final byte[] bufResponse = new byte[512];
-        byte[] header = new DNSMessage().buildHeader();
+
+        // Message msg1 = new Message();
+        // byte[] bufTest1 = new byte[512];
+        // System.arraycopy(msg1.buildHeader(), 0, bufTest1, 0, 12);
+        // Message msg2 = Parser.getInstance().makeMessage(bufTest1);
+        //
+        // System.out.println(msg1 + "\n" + msg2);
+
+        Message msg = Parser.getInstance().makeMessage(buf);
+        byte[] header = new Message().buildHeader();
         System.arraycopy(header, 0, bufResponse, 0, 12);
         final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
         serverSocket.send(packetResponse);
