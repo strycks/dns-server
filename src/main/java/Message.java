@@ -23,6 +23,7 @@ public class Message {
   private int questionSize; // in byte
 
   private byte[] packet = new byte[512];
+  private int packetLength = 0;
 
   public void buildHeader() {
     byte[] msg = new byte[12];
@@ -46,6 +47,7 @@ public class Message {
     msg[11] = (byte) (additionalRecordNum);
 
     System.arraycopy(msg, 0, packet, 0, 12);
+    packetLength = 12;
   }
 
   public void buildQuestion() {
@@ -72,6 +74,7 @@ public class Message {
     questionSize = bytes.length;
 
     System.arraycopy(bytes, 0, packet, 12, bytes.length);
+    packetLength += bytes.length;
   }
 
   public byte[] getPacket() {
@@ -212,5 +215,9 @@ public class Message {
 
   public void setClassType(short[] classType) {
     this.classType = classType;
+  }
+
+  public int getPacketLength() {
+    return packetLength;
   }
 }

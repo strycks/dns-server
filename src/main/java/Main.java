@@ -18,8 +18,14 @@ public class Main {
         //
         // System.out.println(msg1 + "\n" + msg2);
 
-        final byte[] bufResponse = Parser.getInstance().makeMessage(buf).getPacket();
-        final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
+        Message response = Parser.getInstance().makeMessage(buf);
+        response.setIsResponse((byte) 1);
+        response.setReserved((byte) 0);
+        response.buildHeader();
+        response.buildQuestion();
+        final byte[] bufResponse = response.getPacket();
+
+        final DatagramPacket packetResponse = new DatagramPacket(bufResponse, response.getPacketLength(), packet.getSocketAddress());
         serverSocket.send(packetResponse);
       }
     } catch (IOException e) {
