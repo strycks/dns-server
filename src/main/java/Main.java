@@ -11,10 +11,21 @@ public class Main {
         serverSocket.receive(packet);
         System.out.println("Received data");
 
-        final byte[] bufResponse = new byte[512];
-        byte[] header = new DNSMessage().buildHeader();
-        System.arraycopy(header, 0, bufResponse, 0, 12);
-        final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
+        // Message msg1 = new Message();
+        // byte[] bufTest1 = new byte[512];
+        // System.arraycopy(msg1.buildHeader(), 0, bufTest1, 0, 12);
+        // Message msg2 = Parser.getInstance().makeMessage(bufTest1);
+        //
+        // System.out.println(msg1 + "\n" + msg2);
+
+        Message response = Parser.getInstance().makeMessage(buf);
+        response.setIsResponse((byte) 1);
+        response.setReserved((byte) 0);
+        response.buildHeader();
+        response.buildQuestion();
+        final byte[] bufResponse = response.getPacket();
+
+        final DatagramPacket packetResponse = new DatagramPacket(bufResponse, response.getPacketLength(), packet.getSocketAddress());
         serverSocket.send(packetResponse);
       }
     } catch (IOException e) {
