@@ -22,6 +22,10 @@ public class Message {
   private short[] classType; // Usually set to 1 (internet)
   private int questionSize; // in byte
 
+  private int[] timeToLive;
+  private short[] rdLength;
+  private List<Byte[]> rdata; // each record has length specified by rdLength
+
   private byte[] packet = new byte[512];
   private int packetLength = 0;
 
@@ -75,6 +79,66 @@ public class Message {
 
     System.arraycopy(bytes, 0, packet, 12, bytes.length);
     packetLength += bytes.length;
+  }
+
+  public void buildAnswer() {
+    List<Byte> allAnswers = new ArrayList<>();
+    for (int ansCnt = 0; ansCnt < answerRecordNum; ansCnt++) {
+      for (int i = 0; i < domainName.get(ansCnt).length; i++) {
+        String part = domainName.get(ansCnt)[i];
+
+        allAnswers.add((byte) part.length());
+        for (byte b : part.getBytes()) {
+          allAnswers.add(b);
+        }
+      }
+      allAnswers.add((byte) 0x00);
+      allAnswers.add((byte) (recordType[ansCnt] >> 8));
+      allAnswers.add((byte) (recordType[ansCnt]));
+      allAnswers.add((byte) (classType[ansCnt] >> 8));
+      allAnswers.add((byte) (classType[ansCnt]));
+
+      allAnswers.add((byte) (timeToLive[ansCnt] >> 24));
+      allAnswers.add((byte) (timeToLive[ansCnt] >> 16));
+      allAnswers.add((byte) (timeToLive[ansCnt] >> 8));
+      allAnswers.add((byte) (timeToLive[ansCnt]));
+
+      allAnswers.add((byte) (rdLength[ansCnt] >> 8));
+      allAnswers.add((byte) (rdLength[ansCnt]));
+
+      allAnswers.addAll(Arrays.asList(rdata.get(ansCnt)));
+    }
+    byte[] bytes = new byte[allAnswers.size()];
+    for (int i = 0; i < allAnswers.size(); i++) {
+      bytes[i] = allAnswers.get(i);
+    }
+
+    System.arraycopy(bytes, 0, packet, packetLength, bytes.length);
+    packetLength += bytes.length;
+  }
+
+  public int[] getTimeToLive() {
+    return timeToLive;
+  }
+
+  public void setTimeToLive(int[] timeToLive) {
+    this.timeToLive = timeToLive;
+  }
+
+  public short[] getRdLength() {
+    return rdLength;
+  }
+
+  public void setRdLength(short[] rdLength) {
+    this.rdLength = rdLength;
+  }
+
+  public List<Byte[]> getRdata() {
+    return rdata;
+  }
+
+  public void setRdata(List<Byte[]> rdata) {
+    this.rdata = rdata;
   }
 
   public byte[] getPacket() {
