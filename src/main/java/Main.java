@@ -14,17 +14,9 @@ public class Main {
         serverSocket.receive(packet);
         System.out.println("Received data");
 
-        // Message msg1 = new Message();
-        // byte[] bufTest1 = new byte[512];
-        // System.arraycopy(msg1.buildHeader(), 0, bufTest1, 0, 12);
-        // Message msg2 = Parser.getInstance().makeMessage(bufTest1);
-        //
-        // System.out.println(msg1 + "\n" + msg2);
-
         Message response = Parser.getInstance().makeMessage(buf);
+        makeHeaderSection(response);
         makeResponseSection(response);
-        response.setIsResponse((byte) 1);
-        response.setReserved((byte) 0);
 
         response.buildHeader();
         response.buildQuestion();
@@ -57,5 +49,18 @@ public class Main {
       ipList.add(ip);
     }
     response.setRdata(ipList);
+  }
+
+  private static void makeHeaderSection(Message response) {
+    response.setIsResponse((byte) 1);
+    response.setDomainOwned((byte) 0);
+    response.setIsTruncated((byte) 0);
+    response.setRecursionAvailable((byte) 0);
+    response.setReserved((byte) 0);
+    if (response.getOpCode() == 0) {
+      response.setResponseCode((byte) 0);
+    } else {
+      response.setResponseCode((byte) 4); // has not implemented yet
+    }
   }
 }
