@@ -18,9 +18,7 @@ public class Main {
         makeHeaderSection(response);
         makeResponseSection(response);
 
-        response.buildHeader();
-        response.buildQuestion();
-        response.buildAnswer();
+        response.build();
 
         final byte[] bufResponse = response.getPacket();
 
@@ -33,34 +31,34 @@ public class Main {
   }
 
   private static void makeResponseSection(Message response) {
-    response.setAnswerRecordNum(response.getQuestionNum());
-    int[] ttl = new int[response.getAnswerRecordNum()];
+    response.getHeader().setAnswerRecordNum(response.getHeader().getQuestionNum());
+    int[] ttl = new int[response.getHeader().getAnswerRecordNum()];
     Arrays.fill(ttl, 60); // random value at this stage
     response.setTimeToLive(ttl);
 
-    short[] rdLength = new short[response.getAnswerRecordNum()];
+    short[] rdLength = new short[response.getHeader().getAnswerRecordNum()];
     Arrays.fill(rdLength, (short) 4); // 4 byte ipv4 address
     response.setRdLength(rdLength);
 
     Byte[] ip = new Byte[4];
     Arrays.fill(ip, (byte) 8); // 8.8.8.8
     List<Byte[]> ipList = new ArrayList<>();
-    for (int i = 0; i < response.getAnswerRecordNum(); i++) {
+    for (int i = 0; i < response.getHeader().getAnswerRecordNum(); i++) {
       ipList.add(ip);
     }
     response.setRdata(ipList);
   }
 
   private static void makeHeaderSection(Message response) {
-    response.setIsResponse((byte) 1);
-    response.setDomainOwned((byte) 0);
-    response.setIsTruncated((byte) 0);
-    response.setRecursionAvailable((byte) 0);
-    response.setReserved((byte) 0);
-    if (response.getOpCode() == 0) {
-      response.setResponseCode((byte) 0);
+    response.getHeader().setIsResponse((byte) 1);
+    response.getHeader().setDomainOwned((byte) 0);
+    response.getHeader().setIsTruncated((byte) 0);
+    response.getHeader().setRecursionAvailable((byte) 0);
+    response.getHeader().setReserved((byte) 0);
+    if (response.getHeader().getOpCode() == 0) {
+      response.getHeader().setResponseCode((byte) 0);
     } else {
-      response.setResponseCode((byte) 4); // has not implemented yet
+      response.getHeader().setResponseCode((byte) 4); // has not implemented yet
     }
   }
 }

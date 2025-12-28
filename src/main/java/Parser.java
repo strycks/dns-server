@@ -22,28 +22,28 @@ public class Parser {
   public Message makeMessage(byte[] buffer) {
     // 0 - 11 is header
     Message msg = new Message();
-    msg.setIdentifier(combine(buffer[0], buffer[1]));
+    msg.getHeader().setIdentifier(combine(buffer[0], buffer[1]));
 
-    msg.setIsResponse(getBit(buffer[2], 7));
-    msg.setOpCode(getChunk(buffer[2], 3, 4));
-    msg.setDomainOwned(getBit(buffer[2], 2));
-    msg.setIsTruncated(getBit(buffer[2], 1));
-    msg.setRecursionDesired(getBit(buffer[2], 0));
+    msg.getHeader().setIsResponse(getBit(buffer[2], 7));
+    msg.getHeader().setOpCode(getChunk(buffer[2], 3, 4));
+    msg.getHeader().setDomainOwned(getBit(buffer[2], 2));
+    msg.getHeader().setIsTruncated(getBit(buffer[2], 1));
+    msg.getHeader().setRecursionDesired(getBit(buffer[2], 0));
 
-    msg.setRecursionAvailable(getBit(buffer[3], 7));
-    msg.setReserved(getChunk(buffer[3], 4, 3));
-    msg.setResponseCode(getChunk(buffer[3], 0, 4));
+    msg.getHeader().setRecursionAvailable(getBit(buffer[3], 7));
+    msg.getHeader().setReserved(getChunk(buffer[3], 4, 3));
+    msg.getHeader().setResponseCode(getChunk(buffer[3], 0, 4));
 
-    msg.setQuestionNum(combine(buffer[4], buffer[5]));
-    msg.setAnswerRecordNum(combine(buffer[6], buffer[7]));
-    msg.setAuthRecordNum(combine(buffer[8], buffer[9]));
-    msg.setAdditionalRecordNum(combine(buffer[10], buffer[11]));
+    msg.getHeader().setQuestionNum(combine(buffer[4], buffer[5]));
+    msg.getHeader().setAnswerRecordNum(combine(buffer[6], buffer[7]));
+    msg.getHeader().setAuthRecordNum(combine(buffer[8], buffer[9]));
+    msg.getHeader().setAdditionalRecordNum(combine(buffer[10], buffer[11]));
 
     int idx = 12;
     List<String[]> allDomainsInQuestions = new ArrayList<>();
-    short[] quesTypes = new short[msg.getQuestionNum()];
-    short[] quesClasses = new short[msg.getQuestionNum()];
-    for (int i = 0; i < msg.getQuestionNum(); i++, idx++) {
+    short[] quesTypes = new short[msg.getHeader().getQuestionNum()];
+    short[] quesClasses = new short[msg.getHeader().getQuestionNum()];
+    for (int i = 0; i < msg.getHeader().getQuestionNum(); i++, idx++) {
       List<String> domains = new ArrayList<>();
       StringBuilder cur = new StringBuilder();
       int byteRemaining = 0;
@@ -73,8 +73,7 @@ public class Parser {
     msg.setRecordType(quesTypes);
     msg.setClassType(quesClasses);
 
-    msg.buildHeader();
-    msg.buildQuestion();
+    msg.build();
 
     return msg;
   }
